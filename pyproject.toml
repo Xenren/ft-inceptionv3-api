@@ -1,0 +1,22 @@
+[project]
+name = "ft-inceptionv3-api"
+version = "0.1.0"
+description = "API for deploying an InceptionV3 classifier fine-tuned on the HAM10000 skin cancer classification dataset"
+authors = [
+    {name = "xenren",email = "kamren@infinitejest.net"}
+]
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard-no-fastapi-cloud-cli] (>=0.128.8,<0.129.0)"
+]
+
+[dependency-groups]
+dev = [
+    "pyright (>=1.1.408,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
