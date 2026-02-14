@@ -1,0 +1,76 @@
+# https://kubernetes.io/docs/concepts/services-networking/service/
+apiVersion: v1
+kind: Service
+metadata:
+  name: inceptionv3-api
+  namespace: default
+spec:
+  selector:
+    app: inceptionv3-api
+  type: NodePort
+  ports:
+    - name: inceptionv3-api-port
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
+      nodePort: 30001
+---
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inceptionv3-api
+  namespace: default
+  labels:
+    app: inceptionv3-api
+spec:
+  selector:
+    matchLabels:
+      app: inceptionv3-api
+  replicas: 4
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: inceptionv3-api
+      labels:
+        app: inceptionv3-api
+    spec:
+      containers:
+        - name: inceptionv3-api
+          image: xenrenx/inceptionv3-api:latest
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+          livenessProbe:
+            httpGet:
+              path: /_status/healthz
+              port: 8000
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /_status/readyz
+              port: 8000
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+            periodSeconds: 10
+          ports:
+            - containerPort: 8000
+              name: inceptionv3-api
+          volumeMounts:
+            - name: localtime
+              mountPath: /etc/localtime
+      volumes:
+        - name: localtime
+          hostPath:
+            path: /usr/share/zoneinfo/America/Los_Angeles
+      restartPolicy: Always
+---
+
