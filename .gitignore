@@ -1,6 +1,5 @@
 # model weights
 skin_cancer_classifer_inceptionv3.onnx
-skin_cancer_classifer_inceptionv3.pt
 
 bin/
 lib64
