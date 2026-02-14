@@ -6,9 +6,17 @@ app = FastAPI()
 model = InceptionClassifier()
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+@app.get("/_status/healthz")
+async def healthz():
+    return {"ok": True}
+
+
+@app.get("/_status/readyz")
+async def readyz():
+    if model:
+        return {"ok": True}
+    else:
+        return {"ok": False}
 
 
 @app.post("/predict")
