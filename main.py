@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, Response, UploadFile, status
 
 from model.model import InceptionClassifier
 
@@ -6,17 +6,18 @@ app = FastAPI()
 model = InceptionClassifier()
 
 
-@app.get("/_status/healthz")
+@app.get("/_status/livez", status_code=status.HTTP_200_OK)
 async def healthz():
     return {"ok": True}
 
 
-@app.get("/_status/readyz")
-async def readyz():
-    if model:
-        return {"ok": True}
-    else:
-        return {"ok": False}
+@app.get("/_status/readyz", status_code=status.HTTP_200_OK)
+async def readyz(response: Response):
+    if not model:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return {"ok": False, "reason": "failed to load model"}
+
+    return {"ok": True}
 
 
 @app.post("/predict")
