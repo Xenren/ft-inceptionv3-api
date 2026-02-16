@@ -74,7 +74,6 @@ class InceptionClassifier:
         with torch.inference_mode():
             output = self.model(input)  # logits
             probs = F.softmax(output, dim=1)  # convert logits to probabilities
-            print(probs)
             pred_idx = int(
                 torch.argmax(probs).item()
             )  # idx of highest prob is model prediction

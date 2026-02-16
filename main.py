@@ -1,9 +1,31 @@
+import sys
+
 from fastapi import FastAPI, HTTPException, Response, UploadFile, status
 
 from model.model import InceptionClassifier
 
 app = FastAPI()
-model = InceptionClassifier()
+
+
+def load_model_with_retry(num_retries: int):
+    max_retries = 5
+    if num_retries <= max_retries:
+        try:
+            return InceptionClassifier()
+        except RuntimeError as e:
+            print(f"\nFailed to load model: Error loading state_dict: {e}")
+            load_model_with_retry(num_retries + 1)
+        except FileNotFoundError:
+            print("\nFailed to load model: Checkpoint file not found.")
+        except Exception as e:
+            print(f"\nFailed to load model: An unexpected error occurred: {e}")
+            load_model_with_retry(num_retries + 1)
+
+    print("\nMaximum retries reached: shutting down")
+    sys.exit()
+
+
+model = load_model_with_retry(num_retries=0)
 
 
 @app.get("/_status/livez", status_code=status.HTTP_200_OK)
