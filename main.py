@@ -33,7 +33,11 @@ async def healthz():
     return {"ok": True}
 
 
-@app.get("/_status/readyz", status_code=status.HTTP_200_OK)
+@app.get(
+    "/_status/readyz",
+    status_code=status.HTTP_200_OK,
+    responses={503: {"reason": "failed to load model"}},
+)
 async def readyz(response: Response):
     if not model:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
